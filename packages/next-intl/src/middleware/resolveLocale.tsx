@@ -1,17 +1,17 @@
-import {match} from '@formatjs/intl-localematcher';
-import Negotiator from 'negotiator';
-import {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {COOKIE_LOCALE_NAME} from '../shared/constants';
-import {AllLocales} from '../shared/types';
+import { match } from "@formatjs/intl-localematcher";
+import Negotiator from "negotiator";
+import { RequestCookies } from "next/dist/server/web/spec-extension/cookies";
+import { COOKIE_LOCALE_NAME } from "../shared/constants";
+import { AllLocales } from "../shared/types";
 import {
   DomainConfig,
-  MiddlewareConfigWithDefaults
-} from './NextIntlMiddlewareConfig';
+  MiddlewareConfigWithDefaults,
+} from "./NextIntlMiddlewareConfig";
 import {
   getLocaleFromPathname,
   getHost,
-  isLocaleSupportedOnDomain
-} from './utils';
+  isLocaleSupportedOnDomain,
+} from "./utils";
 
 function findDomainFromHost<Locales extends AllLocales>(
   requestHeaders: Headers,
@@ -20,7 +20,7 @@ function findDomainFromHost<Locales extends AllLocales>(
   let host = getHost(requestHeaders);
 
   // Remove port (easier for local development)
-  host = host?.replace(/:\d+$/, '');
+  host = host?.replace(/:\d+$/, "");
 
   if (host && domains) {
     return domains.find((cur) => cur.domain === host);
@@ -38,8 +38,8 @@ function getAcceptLanguageLocale<Locales extends AllLocales>(
 
   const languages = new Negotiator({
     headers: {
-      'accept-language': requestHeaders.get('accept-language') || undefined
-    }
+      "accept-language": requestHeaders.get("accept-language") || undefined,
+    },
   }).languages();
   try {
     locale = match(
@@ -58,7 +58,7 @@ function resolveLocaleFromPrefix<Locales extends AllLocales>(
   {
     defaultLocale,
     localeDetection,
-    locales
+    locales,
   }: MiddlewareConfigWithDefaults<Locales>,
   requestHeaders: Headers,
   requestCookies: RequestCookies,
@@ -85,9 +85,9 @@ function resolveLocaleFromPrefix<Locales extends AllLocales>(
   }
 
   // Prio 3: Use the `accept-language` header
-  if (!locale && localeDetection && requestHeaders) {
-    locale = getAcceptLanguageLocale(requestHeaders, locales, defaultLocale);
-  }
+  // if (!locale && localeDetection && requestHeaders) {
+  //   locale = getAcceptLanguageLocale(requestHeaders, locales, defaultLocale);
+  // }
 
   // Prio 4: Use default locale
   if (!locale) {
@@ -103,7 +103,7 @@ function resolveLocaleFromDomain<Locales extends AllLocales>(
   requestCookies: RequestCookies,
   pathname: string
 ) {
-  const {domains} = config;
+  const { domains } = config;
 
   const localeFromPrefixStrategy = resolveLocaleFromPrefix(
     config,
@@ -127,13 +127,13 @@ function resolveLocaleFromDomain<Locales extends AllLocales>(
           ) || hasLocalePrefix
             ? localeFromPrefixStrategy
             : domain.defaultLocale,
-        domain
+        domain,
       };
     }
   }
 
   // Prio 2: Use prefix strategy
-  return {locale: localeFromPrefixStrategy};
+  return { locale: localeFromPrefixStrategy };
 }
 
 export default function resolveLocale<Locales extends AllLocales>(
@@ -141,7 +141,7 @@ export default function resolveLocale<Locales extends AllLocales>(
   requestHeaders: Headers,
   requestCookies: RequestCookies,
   pathname: string
-): {locale: Locales[number]; domain?: DomainConfig<Locales>} {
+): { locale: Locales[number]; domain?: DomainConfig<Locales> } {
   if (config.domains) {
     return resolveLocaleFromDomain(
       config,
@@ -156,7 +156,7 @@ export default function resolveLocale<Locales extends AllLocales>(
         requestHeaders,
         requestCookies,
         pathname
-      )
+      ),
     };
   }
 }
